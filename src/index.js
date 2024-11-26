@@ -52,7 +52,7 @@ inquirer.prompt(questions)
         inquirer.prompt({
             type: 'input',
             name: 'department',
-            message: 'What is the name of the department you would like to add?'
+            message: 'What is the name of the department?'
         })
         .then( async (answers) => {
             try{
@@ -78,17 +78,18 @@ inquirer.prompt(questions)
             {
                 type: 'input',
                 name: 'title',
-                message: 'What is the title of the role you would like to add?'
+                message: 'What is the title of the role?'
             },
             {
                 type: 'input',
                 name: 'salary',
-                message: 'What is the salary of the role you would like to add?'
+                message: 'What is the salary of the role?'
             },
             {
-                type: 'input',
-                name: 'department_id',
-                message: 'What is the department id of the role you would like to add?'
+                type: 'list',
+                name: 'department',
+                message: 'Which department does the role belong to?',
+                choices: ['Sales', 'Engineering', 'Finance', 'Legal']
             }
         ])
         .then( async (answers) => {
@@ -115,17 +116,18 @@ inquirer.prompt(questions)
             {
                 type: 'input',
                 name: 'first_name',
-                message: 'What is the first name of the employee you would like to add?'
+                message: 'What is the first name of the employee?'
             },
             {
                 type: 'input',
                 name: 'last_name',
-                message: 'What is the last name of the employee you would like to add?'
+                message: 'What is the last name of the employee?'
             },
             {
-                type: 'input',
-                name: 'role_id',
-                message: 'What is the role id of the employee you would like to add?'
+                type: 'list',
+                name: 'role',
+                message: 'What is the role of the employee?',
+                choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Engineer', 'Account Manager', 'Accountant', 'Legal Team Lead', 'Lawyer']
             },
         ])
         .then( async (answers) => {
@@ -142,24 +144,25 @@ inquirer.prompt(questions)
         inquirer.prompt([
             {
                 type: 'input',
-                name: 'employee_id',
-                message: 'What is the id of the employee you would like to update?'
+                name: 'employee',
+                message: "Which employee's do yo want to update?"
             },
             {
-                type: 'input',
+                type: 'list',
                 name: 'role_id',
-                message: 'What is the new role id of the employee you would like to update?'
+                message: 'Which role do you like to assign the selected employee?',
+                choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Engineer', 'Account Manager', 'Accountant', 'Legal Team Lead', 'Lawyer']
             }
         ])
-        .then( async (answers) => {
-            try{
-                await pool.query('UPDATE employees SET role_id = $1 WHERE id = $2', [answers.role_id, answers.employee_id]);
-                console.log('Employee role updated!');
-            }catch(err){
-                console.error(err);
-            }
-        });
+        
     }
+    .then( async (answers) => {
+        try{
+            await pool.query('UPDATE employees SET role_id = $1 WHERE first_name = $2', [answers.role_id, answers.employee]);
+            console.log('Employee role updated!');
+        }catch(err){
+            console.error(err);
+        }});
 
     const quit = () => {
         console.log('Goodbye!');
