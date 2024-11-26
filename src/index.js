@@ -155,14 +155,15 @@ inquirer.prompt(questions)
             }
         ])
         
-    }
     .then( async (answers) => {
         try{
             await pool.query('UPDATE employees SET role_id = $1 WHERE first_name = $2', [answers.role_id, answers.employee]);
             console.log('Employee role updated!');
         }catch(err){
             console.error(err);
-        }});
+        }
+    });
+}
 
     const quit = () => {
         console.log('Goodbye!');
