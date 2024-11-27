@@ -1,54 +1,62 @@
 import inquirer from 'inquirer';
 import 'dotenv/config';
+import { pool, connectToDb } from './connection.js';
+
+connectToDb();
 
 const questions = [
 { type: 'list',
-  name: 'what to do',
+  name: 'answer',
   message: 'What would you like to do?',
-  choices: ['View departments', 'Add department', 'View roles', 'Add role', 'View employees', 'Add employee', 'Update employee role', 'Quit'], 
+  choices: ['View Departments', 'Add Department', 'View Roles', 'Add Role', 'View Employees', 'Add Employee', 'Update Employee Role', 'Quit'], 
     }
-]
+];
 
-inquirer.prompt(questions)
+const answersQuestions = () => {
+    inquirer.prompt(questions)
       .then((answers) => {
-        if (answers === 'View Departments'){
+        console.log("answers", answers);
+        if (answers.answer === 'View Departments'){
             viewDepartments();
         }
-        if (answers === 'Add Department'){
-            addDepartmetns();
+        if (answers.answer === 'Add Department'){
+            addDepartments();
         }
-        if (answers === 'View Roles'){
+        if (answers.answer === 'View Roles'){
             viewRoles();
         }
-        if (answers === 'Add Role'){
+        if (answers.answer === 'Add Role'){
             addRole();
         }
-        if (answers === 'View Employees'){
+        if (answers.answer === 'View Employees'){
             viewEmployees();
         }
-        if (answers === 'Add Employee'){
+        if (answers.answer === 'Add Employee'){
             addEmployee();
         }
-        if (answers === 'Update Employee Role'){
+        if (answers.answer === 'Update Employee Role'){
             updateEmployeeRole();
         }
-        if (answers === 'Quit'){
+        if (answers.answer === 'Quit'){
             quit();
         }
     }
-);
+)
+};
       
 
     const viewDepartments = async () => {
         try{
+            console.log('Viewing departments');
             const { rows } = await pool.query('SELECT * FROM departments');
-            console.table(rows);
+            console.table(rows)
+            answersQuestions();
         }catch(err){
             console.error(err);
         }
       };
 
-    const addDepartmetns = () => {
+    const addDepartments = () => {
         inquirer.prompt({
             type: 'input',
             name: 'department',
@@ -56,18 +64,22 @@ inquirer.prompt(questions)
         })
         .then( async (answers) => {
             try{
-                await pool.query('INSERT INTO departments (name) VALUES ($1)', [answers.department]);
+                await pool.query(`INSERT INTO departments (name) VALUES ($1)`, [answers.department]);
                 console.log('Department added!');
+                answersQuestions();
             }catch(err){
                 console.error(err);
             }
         });
     };
 
+
     const viewRoles = async () => {
         try{
+            console.log('Viewing roles');
             const { rows } = await pool.query('SELECT * FROM roles');
             console.table(rows);
+            answersQuestions();
         }catch(err){
             console.error(err);
         }
@@ -87,7 +99,7 @@ inquirer.prompt(questions)
             },
             {
                 type: 'list',
-                name: 'department',
+                name: 'department_id',
                 message: 'Which department does the role belong to?',
                 choices: ['Sales', 'Engineering', 'Finance', 'Legal']
             }
@@ -96,6 +108,7 @@ inquirer.prompt(questions)
             try{
                 await pool.query('INSERT INTO roles (title, salary, department_id) VALUES ($1, $2, $3)', [answers.title, answers.salary, answers.department_id]);
                 console.log('Role added!');
+                answersQuestions();
             }catch(err){
                 console.error(err);
             }
@@ -106,6 +119,7 @@ inquirer.prompt(questions)
         try{
             const { rows } = await pool.query('SELECT * FROM employees');
             console.table(rows);
+            answersQuestions();
         }catch(err){
             console.error(err);
         }
@@ -134,6 +148,7 @@ inquirer.prompt(questions)
             try{
                 await pool.query('INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)', [answers.first_name, answers.last_name, answers.role_id, answers.manager_id]);
                 console.log('Employee added!');
+                answersQuestions();
             }catch(err){
                 console.error(err);
             }
@@ -159,15 +174,17 @@ inquirer.prompt(questions)
         try{
             await pool.query('UPDATE employees SET role_id = $1 WHERE first_name = $2', [answers.role_id, answers.employee]);
             console.log('Employee role updated!');
+            answersQuestions();
         }catch(err){
             console.error(err);
         }
     });
-}
+    }
 
     const quit = () => {
         console.log('Goodbye!');
         process.exit(0);
     }
-    
-      
+
+
+answersQuestions();
